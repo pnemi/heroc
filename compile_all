@@ -1,0 +1,8 @@
+#!/bin/bash
+for i in $(seq -w 1 40)
+do
+    echo "Compiling example $i"
+    gcc -m64 -o heroc_examples/example$i heroc_examples/example$i.s herocio.c
+    echo "Running example $i"
+    heroc_examples/example$i > heroc_examples/example$i.out.txt
+done

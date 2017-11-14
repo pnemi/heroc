@@ -1,0 +1,10 @@
+{
+  "name": "heroc",
+  "version": "1.0.0",
+  "main": "heroc.js",
+  "dependencies": {
+    "antlr4": "^4.6.0",
+    "fs": "0.0.1-security"
+  },
+  "author": "Petr Němeček"
+}

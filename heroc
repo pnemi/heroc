@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+
+const
+  fs = require("fs"),
+  antlr4 = require("antlr4/index"),
+  gramarPath = "./grammar/target/generated-sources/antlr4/",
+  HEROCLexer = require(gramarPath + "HEROCLexer"),
+  HEROCParser = require(gramarPath + "HEROCParser"),
+  NodeVisitor = require("./visitors/NodeVisitor"),
+  PWD = process.env.PWD;
+
+const getFilename = () => {
+  if (process.argv[2]) {
+    return PWD + "/" + process.argv[2];
+  } else {
+    console.error("Missing filename!");
+  }
+};
+
+const loadSource = () => {
+  let filename = getFilename();
+  fs.readFile(filename, "ascii", (err, data) => {
+    if (err) throw err;
+    parse(data, filename);
+  });
+};
+
+const parse = (source, filename) => {
+  let chars = new antlr4.InputStream(source);
+  let lexer = new HEROCLexer.HEROCLexer(chars);
+  let tokens = new antlr4.CommonTokenStream(lexer);
+  let parser = new HEROCParser.HEROCParser(tokens);
+  parser.buildParseTrees = true;
+  let parseTree = parser.program();
+  return makeAST(parseTree, filename);
+};
+
+const makeAST = (parseTree, filename) => {
+  let visitor = new NodeVisitor.NodeVisitor();
+  let ast = visitor.visitProgram(parseTree);
+  ast.filename = filename;
+
+  let path = filename.replace(/\.[^/.]+$/, "");
+
+  fs.writeFileSync(path + ".s", ast.printCode());
+
+  if (process.argv[3] === "ast") {
+    fs.writeFileSync(path + "_AST.txt", ast.printTree());
+  }
+  // return {ast: ast.printTree(), asm: asm};
+};
+
+const testExamples = () => {
+  for (var i = 1; i <= 40; i++) {
+    let filename = "heroc/heroc_examples/example";
+    if (i < 10) {
+      filename += "0";
+    }
+    filename += i;
+    let data = fs.readFileSync(filename + ".heroc", "ascii");
+    let output = parse(data, filename);
+    fs.writeFileSync(filename + "_AST.txt", output.ast);
+    fs.writeFileSync(filename + ".s", output.asm);
+  }
+};
+
+loadSource();
+// testExamples();
