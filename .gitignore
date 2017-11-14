@@ -1,0 +1,16 @@
+.DS_Store
+docs/
+node_modules/
+heroc_examples/
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.project
